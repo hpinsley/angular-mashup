@@ -6,6 +6,7 @@ import * as socketIO from 'socket.io';
 import {RtBroker} from './RtBroker';
 import {argv} from 'yargs';
 import {SecurityService} from './services/SecurityService';
+//import * as expressJwt from 'express-jwt';
 
 var env = argv['env'] || 'dev';
 
@@ -19,8 +20,11 @@ var config = {
     staticRoot: '',
 	port: 3000,
 	mongo_url: process.env.CELLDATA_URL || 'mongodb://@localhost:27017/celldata',
-    mongo_animal_url: process.env.ANIMALS_URL || 'mongodb://@localhost:27017/animals'
+    mongo_animal_url: process.env.ANIMALS_URL || 'mongodb://@localhost:27017/animals',
+    mashupSecret: process.env.MASHUP_SECRET
 };
+
+//console.log(`MASHUP_SECRET: ${config.mashupSecret}`);
 
 if (process.env.PORT) {
     config.port = parseInt(process.env.PORT);
@@ -62,6 +66,12 @@ app.use(bodyParser({
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 
+// app.use(expressJwt({secret: config.mashupSecret}).unless(
+//     {
+//         path: ['/login', '/register']
+//     }
+// ));
+
 var db = mongoskin.db(config.mongo_url, {safe:true});
 var animalsdb = mongoskin.db(config.mongo_animal_url, {safe:true});
 
@@ -73,7 +83,7 @@ app.use(function(req, res, next){
 });
 
 let securityService = new SecurityService();
-var apiRouteCreator = new ApiRouting(app, securityService);
+var apiRouteCreator = new ApiRouting(app, securityService, config.mashupSecret);
 app.use('/api', apiRouteCreator.getApiRoutingConfig());
 
 /// catch 404 and forwarding to error handler

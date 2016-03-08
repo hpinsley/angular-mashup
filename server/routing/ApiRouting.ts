@@ -14,6 +14,7 @@ import {SecurityService} from '../services/SecurityService';
 
 import os = require('os');
 import fs = require('fs');
+import * as jwt from 'jsonwebtoken';
 
 export class ApiRouting {
 
@@ -23,7 +24,7 @@ export class ApiRouting {
 	cellDataPersistenceService:CellDataPersistenceService;
 	quizPersistenceService:QuizPersistenceService;
 
-	constructor(public app, public securityService:SecurityService) {
+	constructor(public app, public securityService:SecurityService, public hashPassword:string) {
 		this.animalPersistenceService = new AnimalPersistenceService();
 		this.cellDataPersistenceService = new CellDataPersistenceService();
 		this.quizPersistenceService = new QuizPersistenceService();
@@ -127,7 +128,16 @@ export class ApiRouting {
 	login(req, res, next) {
 		var loginRequest:ILoginRequest = req.body;
 		this.securityService.login(loginRequest.username, loginRequest.password, req)
-			.then(resp => res.send(resp))
+			.then(loginResult => {
+                    if (loginResult.succeeded) {
+                        jwt.sign(loginResult.userInfo, this.hashPassword, {expiresIn: '2 days'}, <any> ((token:string) => {
+                            loginResult.userToken = token;
+                            res.send(loginResult);
+                        }));
+                    } else {
+                        res.send(loginResult);
+                    }
+                })
 			.catch(err => next(err));
 	}
 

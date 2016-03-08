@@ -30,4 +30,5 @@ export interface ILoginRequest {
 export interface ILoginResult {
 	succeeded: boolean;
 	userInfo?:SecurityInterfaces.IUser;
+    userToken?:string;
 };
