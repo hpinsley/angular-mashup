@@ -2,9 +2,12 @@ import {Injectable} from 'angular2/core';
 import {CounterReducer, ICounterState} from './Counter/CounterReducer';
 import {TodoReducer, ITodoState} from './Todo/TodoReducer';
 import {PersistenceReducer, IPersistenceState} from './Persistence/PersistenceReducer';
+import {SecurityReducer, ISecurityState} from './Security/SecurityReducer';
+
 import * as Redux from 'redux';
 
 interface IDataState {
+    security: ISecurityState;
     persistence: IPersistenceState;
     todos: ITodoState;
     counter: ICounterState;
@@ -19,6 +22,7 @@ export class DataService {
         console.log('Constructing the data service.');
 
         let reducers = {
+            security: SecurityReducer.reducer,
             persistence: PersistenceReducer.reducer,
             todos: TodoReducer.reducer,
             counter: CounterReducer.reducer

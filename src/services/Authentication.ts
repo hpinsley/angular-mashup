@@ -2,15 +2,17 @@ import {Injectable} from 'angular2/core';
 import {Observable} from 'rxjs/Observable';
 import {Router} from 'angular2/router';
 import {Http, Headers, RequestOptions, RequestOptionsArgs} from 'angular2/http';
+import {DataService} from './redux/DataService';
 import {IRegistration, IRegistrationResponse, ILoginRequest,
 	    ILoginResult, IRegisteredUser} from '../../common/interfaces/RegistrationInterfaces';
+import * as SecurityReducerModule from './redux/Security/SecurityReducer';
 
 @Injectable()
 export class Authentication {
 	_user: IRegisteredUser;
 	lastRoute: string = '';
 
-	constructor(public router: Router, public http: Http) {
+	constructor(public router: Router, public http: Http, public dataService:DataService) {
 
 		this.router.subscribe(v => {
 			if (v === 'login' || v === 'register' ) {
@@ -52,6 +54,13 @@ export class Authentication {
 
 				if (loginResult.succeeded) {
 					this._user = loginResult.userInfo;
+
+                    // Save the user token (which is opaque to us)
+                    let action:SecurityReducerModule.IAuthenticateAction = {
+                        type: SecurityReducerModule.ActionNames.Authenticate,
+                        token: loginResult.userToken
+                    };
+                    this.dataService.dispatch(action);
 				}
 				return loginResult;
 			});
