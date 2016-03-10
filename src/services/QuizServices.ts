@@ -4,11 +4,12 @@ import {Http, Headers, RequestOptions, RequestOptionsArgs} from 'angular2/http';
 import {IQuizQuestion, INewQuizRequest, IQuiz, IScoringResult,
         ITest, INewTestRequest, ISectionResult} from '../../common/interfaces/QuizInterfaces';
 import {SectionResult} from '../models/SectionResult';
+import {Server} from './Server';
 
 @Injectable()
 export class QuizServices {
 
-	constructor(public http:Http) {
+	constructor(public http:Http, public server:Server) {
 
 	}
 
@@ -57,10 +58,7 @@ export class QuizServices {
 	}
 
 	addQuestion(newQuestion:IQuizQuestion) : Observable<IQuizQuestion> {
-		var pub = this.http.post('/api/quiz/questions',
-					JSON.stringify(newQuestion),
-					this.getPostOptions());
-
+        let pub = this.server.post('/api/quiz/questions', newQuestion);
 		return pub.map(response => response.json());
 	}
 

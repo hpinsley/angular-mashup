@@ -8,6 +8,7 @@ import {MessageBroker} from './services/MessageBroker';
 import {DataService} from './services/redux/DataService';
 import {CounterService} from './services/redux/Counter/CounterService';
 import {TodoService} from './services/redux/Todo/TodoService';
+import {Server} from './services/Server';
 
 if ('<%= ENV %>' === 'prod') { enableProdMode(); }
 
@@ -16,6 +17,7 @@ bootstrap(AppCmp, [
   provide(APP_BASE_HREF, { useValue: '/' }),
   HTTP_PROVIDERS,
   provide(LocationStrategy, {useClass: HashLocationStrategy}),
+  Server,
   Authentication,
   MessageBroker,
   DataService,
