@@ -5,7 +5,6 @@ import {Http, Headers, RequestOptions, RequestOptionsArgs} from 'angular2/http';
 import {DataService} from './redux/DataService';
 import {IRegistration, IRegistrationResponse, ILoginRequest,
 	    ILoginResult, IRegisteredUser} from '../../common/interfaces/RegistrationInterfaces';
-// import * as SecurityReducerModule from './redux/Security/SecurityReducer';
 
 @Injectable()
 export class Authentication {
@@ -49,24 +48,15 @@ export class Authentication {
 	login(username: string, password: string): Observable<ILoginResult> {
 		var loginRequest: ILoginRequest = { username: username, password: password };
 
-		var p = this.http.post('/api/login',
-			JSON.stringify(loginRequest), this.getPostOptions());
+		var p = this.http.post('/api/login', JSON.stringify(loginRequest), this.getPostOptions());
 
         var result = p.map(response => {
 				var loginResult = <ILoginResult>response.json();
 
 				if (loginResult.succeeded) {
 					this._user = loginResult.userInfo;
-
                     this.bearerToken = loginResult.userToken;   // Save this to pass each time
                     localStorage.setItem('bearerToken', this.bearerToken);
-
-                    // // Save the user token (which is opaque to us)
-                    // let action:SecurityReducerModule.IAuthenticateAction = {
-                    //     type: SecurityReducerModule.ActionNames.Authenticate,
-                    //     token: loginResult.userToken
-                    // };
-                    // this.dataService.dispatch(action);
 				}
 				return loginResult;
 			});
@@ -80,8 +70,7 @@ export class Authentication {
 
         var payload = JSON.stringify({token: token});
 
-		var p = this.http.post('/api/login/token', payload,
-			        this.getPostOptions());
+		var p = this.http.post('/api/login/token', payload, this.getPostOptions());
 
         var result = p.map(response => {
 				var loginResult = <ILoginResult>response.json();
