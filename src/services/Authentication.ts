@@ -88,6 +88,7 @@ export class Authentication {
 
 	logout() {
 		this._user = null;
+        localStorage.removeItem('bearerToken');
 	}
 
 	getLastRoute(): string {

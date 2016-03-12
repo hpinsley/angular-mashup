@@ -19,7 +19,7 @@ import * as expressJwt from 'express-jwt';
 
 export class ApiRouting {
 
-    tokenExpirationDays:number = 5;
+    tokenExpirationDays:number = 30;
 
 	uploadFolder:string = '';
 	router:express.Router;

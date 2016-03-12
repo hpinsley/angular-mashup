@@ -1,6 +1,15 @@
 <div class="container">
+    <div class="jumbotron">
+        <h1>Login Sample</h1>
+        For portions of this sample, I'm asking for a login.  Click the registration
+        button to set that up.  Note that this is very easy as I don't even verify the
+        email address.  I just wanted this site to have some resemblance to a normal application's
+        authentication flow.  Though the server stores only an encrypted password, since this
+        connection is not SSL/secure, it is best practice to not use one of your "regular"
+        passwords. Also, once you register and login, your credentials are saved for 30 days (as
+        a JSON Web Token in your browser's local storage).
+    </div>
 	<h2>Login or <a class="btn btn-info btn-large" href="./#/register">Register</a></h2>
-
 	<form action="">
 		<div class="form-group">
 			<input style="font-size:20pt; color:blue" id="username" autofocus type="text" placeholder="Username" [(ngModel)]="username" />
