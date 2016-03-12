@@ -139,6 +139,28 @@ export class SecurityService {
 		return defer.promise;
 	}
 
+	public tokenLogin(tokenUserInfo:IUser, req:any) : Q.Promise<ILoginResult> {
+
+		var defer = Q.defer<ILoginResult>();
+
+		let username = tokenUserInfo.username.trim().toLocaleLowerCase();
+
+		this.getUserByUsernameInternal(username)
+			.then(registeredUser => {
+                if (!registeredUser) {
+                    defer.resolve({succeeded: false});
+                } else  {
+                    this.saveAuditRecord(username, 'tokenLogin', { ip: req.ip})
+                        .then(auditRec => {
+        					defer.resolve({succeeded: true, userInfo: this.mapUser(registeredUser)});
+                         });
+                }
+            })
+			.catch(err => defer.reject(err));
+
+		return defer.promise;
+	}
+
 	public registerUser(registration: IRegistration): Q.Promise<IRegistrationResponse> {
 		let defer = Q.defer<IRegistrationResponse>();
 

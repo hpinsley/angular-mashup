@@ -133,6 +133,7 @@ export class AppCmp {
               public router:Router,
               public messageBroker:MessageBroker) {
 
+
       this.messageBroker.getChatMessages()
         .subscribe((msg:IChatMessage) => this.lastChatMessage = msg);
 
@@ -140,6 +141,15 @@ export class AppCmp {
       this.scheduleAutoSave();
   }
 
+  ngOnInit() {
+    let token:string = localStorage.getItem('bearerToken');
+    if (token) {
+        this.auth.tokenLogin(token)
+            .subscribe(res => console.log('Token login Success:', res),
+                err => console.log('Token login Error', err));
+
+    }
+  }
   getUser(): string {
     return this.auth.isLoggedIn() ? this.auth.user.username : '';
   }

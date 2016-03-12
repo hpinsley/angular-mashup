@@ -6,7 +6,6 @@ import * as socketIO from 'socket.io';
 import {RtBroker} from './RtBroker';
 import {argv} from 'yargs';
 import {SecurityService} from './services/SecurityService';
-//import * as expressJwt from 'express-jwt';
 
 var env = argv['env'] || 'dev';
 
@@ -44,7 +43,6 @@ if (env === 'dev') {
 console.log(`Static root is: ${config.staticRoot}`);
 console.log('Configuration: ', config);
 
-
 var app = express();
 
 if (env === 'dev') {
@@ -65,12 +63,6 @@ app.use(bodyParser({
 }));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
-
-// app.use(expressJwt({secret: config.mashupSecret}).unless(
-//     {
-//         path: ['/login', '/register']
-//     }
-// ));
 
 var db = mongoskin.db(config.mongo_url, {safe:true});
 var animalsdb = mongoskin.db(config.mongo_animal_url, {safe:true});

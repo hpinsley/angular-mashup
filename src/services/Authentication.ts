@@ -5,12 +5,13 @@ import {Http, Headers, RequestOptions, RequestOptionsArgs} from 'angular2/http';
 import {DataService} from './redux/DataService';
 import {IRegistration, IRegistrationResponse, ILoginRequest,
 	    ILoginResult, IRegisteredUser} from '../../common/interfaces/RegistrationInterfaces';
-import * as SecurityReducerModule from './redux/Security/SecurityReducer';
+// import * as SecurityReducerModule from './redux/Security/SecurityReducer';
 
 @Injectable()
 export class Authentication {
 	_user: IRegisteredUser;
 	lastRoute: string = '';
+    bearerToken: string;
 
 	constructor(public router: Router, public http: Http, public dataService:DataService) {
 
@@ -22,6 +23,8 @@ export class Authentication {
 				console.log(`Set last route to ${this.lastRoute}`);
 			}
 		});
+
+        this.bearerToken = localStorage.getItem('bearerToken');
 	}
 
 	authenticate(): boolean {
@@ -55,12 +58,38 @@ export class Authentication {
 				if (loginResult.succeeded) {
 					this._user = loginResult.userInfo;
 
-                    // Save the user token (which is opaque to us)
-                    let action:SecurityReducerModule.IAuthenticateAction = {
-                        type: SecurityReducerModule.ActionNames.Authenticate,
-                        token: loginResult.userToken
-                    };
-                    this.dataService.dispatch(action);
+                    this.bearerToken = loginResult.userToken;   // Save this to pass each time
+                    localStorage.setItem('bearerToken', this.bearerToken);
+
+                    // // Save the user token (which is opaque to us)
+                    // let action:SecurityReducerModule.IAuthenticateAction = {
+                    //     type: SecurityReducerModule.ActionNames.Authenticate,
+                    //     token: loginResult.userToken
+                    // };
+                    // this.dataService.dispatch(action);
+				}
+				return loginResult;
+			});
+
+		return result;
+	}
+
+	tokenLogin(token:string): Observable<ILoginResult> {
+
+        console.info(`Attempting tokenLogin with token ${token}.`);
+
+        var payload = JSON.stringify({token: token});
+
+		var p = this.http.post('/api/login/token', payload,
+			        this.getPostOptions());
+
+        var result = p.map(response => {
+				var loginResult = <ILoginResult>response.json();
+
+				if (loginResult.succeeded) {
+					this._user = loginResult.userInfo;
+                    this.bearerToken = loginResult.userToken;   // Save this to pass each time
+                    localStorage.setItem('bearerToken', this.bearerToken);
 				}
 				return loginResult;
 			});

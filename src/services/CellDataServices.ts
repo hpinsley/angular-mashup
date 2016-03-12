@@ -2,16 +2,18 @@ import {Injectable} from 'angular2/core';
 import {Observable} from 'rxjs/Observable';
 import {Http, Headers, RequestOptions, RequestOptionsArgs} from 'angular2/http';
 import {ICycle, IPerson, IUsage} from '../../common/interfaces/CellDataInterfaces';
+import {Server} from './Server';
 
 @Injectable()
 export class CellDataServices {
 
-	constructor(public http:Http) {
+	constructor(public http:Http, public server:Server) {
 
 	}
 
 	getPeople() : Observable<IPerson[]> {
-		var result = this.http.get('/api/celldata/people')
+		//var result = this.http.get('/api/celldata/people')
+		var result = this.server.get('/api/celldata/people')
 			.map(response => {
                 return <IPerson[]>response.json();
             });

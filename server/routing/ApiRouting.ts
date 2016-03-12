@@ -5,7 +5,7 @@ import {INewAnimalInfo} from '../../common/interfaces/AnimalInterfaces';
 import {IPerson, ICycle} from '../../common/interfaces/CellDataInterfaces';
 import {IQuizQuestion, INewQuizRequest, INewTestRequest, IScoringResult} from '../../common/interfaces/QuizInterfaces';
 import {IRegistration, ILoginRequest} from '../../common/interfaces/RegistrationInterfaces';
-import {IRole} from '../../common/interfaces/SecurityInterfaces';
+import {IRole, IUser} from '../../common/interfaces/SecurityInterfaces';
 
 import {AnimalPersistenceService} from '../services/AnimalPersistenceService';
 import {CellDataPersistenceService} from '../services/CellDataPersistenceService';
@@ -15,14 +15,18 @@ import {SecurityService} from '../services/SecurityService';
 import os = require('os');
 import fs = require('fs');
 import * as jwt from 'jsonwebtoken';
+import * as expressJwt from 'express-jwt';
 
 export class ApiRouting {
+
+    tokenExpirationDays:number = 5;
 
 	uploadFolder:string = '';
 	router:express.Router;
 	animalPersistenceService:AnimalPersistenceService;
 	cellDataPersistenceService:CellDataPersistenceService;
 	quizPersistenceService:QuizPersistenceService;
+    secureApiHandler:expressJwt.RequestHandler;
 
 	constructor(public app, public securityService:SecurityService, public hashPassword:string) {
 		this.animalPersistenceService = new AnimalPersistenceService();
@@ -31,6 +35,8 @@ export class ApiRouting {
 
 		this.uploadFolder = os.tmpdir();
 		console.log('Uploads will be placed in ' + this.uploadFolder);
+
+        this.secureApiHandler = expressJwt({ secret: hashPassword });
 	}
 
 	getApiRoutingConfig() : any {
@@ -48,13 +54,14 @@ export class ApiRouting {
 		this.router.get('/roles', this.getRoles.bind(this));
 		this.router.post('/roles', this.addRole.bind(this));
 		this.router.post('/users/register', this.registerUser.bind(this));
+		this.router.post('/login/token', this.tokenLogin.bind(this));
 		this.router.post('/login', this.login.bind(this));
 		this.router.get('/animals/questions/root', this.getRootQuestion.bind(this));
 		this.router.get('/animals/questions/:questionId', this.getQuestion.bind(this));
 		this.router.get('/animals/questions', this.getAllQuestions.bind(this));
 		this.router.post('/animals', this.saveNewAnimal.bind(this));
 		this.router.delete('/animals/:animalId', this.deleteAnimal.bind(this));
-		this.router.get('/celldata/people', this.getPeople.bind(this));
+		this.router.get('/celldata/people', this.secureApiHandler, this.getPeople.bind(this));
 		this.router.post('/celldata/people', this.addPerson.bind(this));
 		this.router.get('/celldata/cycles', this.getCycles.bind(this));
 		this.router.post('/celldata/cycles', this.addCycle.bind(this));
@@ -125,12 +132,13 @@ export class ApiRouting {
 	}
 
 	// Login a user
-	login(req, res, next) {
+	login(req:express.Request, res: express.Response, next) {
 		var loginRequest:ILoginRequest = req.body;
 		this.securityService.login(loginRequest.username, loginRequest.password, req)
 			.then(loginResult => {
                     if (loginResult.succeeded) {
-                        jwt.sign(loginResult.userInfo, this.hashPassword, {expiresIn: '2 days'}, <any> ((token:string) => {
+                        jwt.sign(loginResult.userInfo, this.hashPassword,
+                                {expiresIn: `${this.tokenExpirationDays} days`}, <any> ((token:string) => {
                             loginResult.userToken = token;
                             res.send(loginResult);
                         }));
@@ -139,6 +147,30 @@ export class ApiRouting {
                     }
                 })
 			.catch(err => next(err));
+	}
+
+	tokenLogin(req:express.Request, res: express.Response, next) {
+		var token = req.body.token;
+        console.info(`Attempt to login with token ${token}`);
+        jwt.verify(token, this.hashPassword, (err, user:IUser) => {
+            if (err) {
+                next(err);
+            } else {
+                this.securityService.tokenLogin(user, req)
+                    .then(loginResult => {
+                            if (loginResult.succeeded) {
+                                jwt.sign(loginResult.userInfo, this.hashPassword,
+                                        {expiresIn: `${this.tokenExpirationDays} days`}, <any> ((token:string) => {
+                                    loginResult.userToken = token;
+                                    res.send(loginResult);
+                                }));
+                            } else {
+                                res.send(loginResult);
+                            }
+                        })
+                    .catch(err => next(err));
+            }
+        });
 	}
 
 	// Register a new users
@@ -189,7 +221,6 @@ export class ApiRouting {
 			.then(deleteResponse => res.send(deleteResponse))
 			.catch(err => next({status:401, msg: err}));
 	}
-
 
 	getPeople(req, res, next) {
 		this.cellDataPersistenceService.getPeople()
