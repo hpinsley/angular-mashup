@@ -1,4 +1,4 @@
-import {Component, EventEmitter} from 'angular2/core';
+import {Component, EventEmitter, OnInit, OnDestroy} from 'angular2/core';
 import {CORE_DIRECTIVES, FORM_DIRECTIVES} from 'angular2/common';
 
 @Component({
@@ -8,7 +8,7 @@ import {CORE_DIRECTIVES, FORM_DIRECTIVES} from 'angular2/common';
     directives: [FORM_DIRECTIVES, CORE_DIRECTIVES],
     styleUrls: ['./common/components/YesNo.css']
 })
-export class YesNo {
+export class YesNo implements OnInit, OnDestroy {
     yes:EventEmitter<string>;
     no:EventEmitter<string>;
     answer:EventEmitter<string>;
@@ -17,6 +17,14 @@ export class YesNo {
         this.yes = new EventEmitter();
         this.no = new EventEmitter();
         this.answer = new EventEmitter();
+    }
+
+    ngOnInit() {
+        console.log('OnInit: YesNo');
+    }
+
+    ngOnDestroy() {
+        console.log('OnDestroy: YesNo');
     }
 
     yesClick() {

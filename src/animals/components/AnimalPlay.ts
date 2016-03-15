@@ -1,4 +1,4 @@
-import {Component, EventEmitter} from 'angular2/core';
+import {Component, EventEmitter, OnInit} from 'angular2/core';
 import {CORE_DIRECTIVES, FORM_DIRECTIVES} from 'angular2/common';
 import {Router} from 'angular2/router';
 import {AnimalServices} from '../../services/AnimalServices';
@@ -43,7 +43,7 @@ var noQuestion:IQuestion = {
     directives: [FORM_DIRECTIVES, CORE_DIRECTIVES, YesNo],
     styleUrls: ['./animals/components/AnimalPlay.css']
 })
-export class AnimalPlay {
+export class AnimalPlay implements OnInit {
 
     questionchange:EventEmitter<IQuestion>;
     dbupdated:EventEmitter<any>;
@@ -63,7 +63,15 @@ export class AnimalPlay {
         console.log('Component AnimalPlay constructed');
         this.questionchange = new EventEmitter();
         this.dbupdated = new EventEmitter();
+    }
+
+    ngOnInit() {
+        console.log('AnimalPlay: ngOnInit');
         this.getFirstQuestion();
+    }
+
+    ngOnDestroy() {
+        console.log('AnimalPlay: ngOnDestroy');
     }
 
     getFirstQuestion() {

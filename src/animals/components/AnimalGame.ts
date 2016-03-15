@@ -39,6 +39,15 @@ export class AnimalGame {
         this.findLatestAnimal();
     }
 
+    ngOnInit() {
+        console.log('AnimalGame: ngOnInit');
+    }
+
+    ngOnDestroy() {
+        console.log('AnimalGame: ngOnDestroy');
+    }
+
+
     findLatestAnimal() {
         this.animalServices.getQuestions()
             .subscribe(questions => {

@@ -49,10 +49,10 @@ export class ApiRouting {
 	configBasicRoutes() {
 
 		this.router.get('/users', this.getUsers.bind(this));
-		this.router.post('/roles/:roleName/members', this.addRoleMembers.bind(this));
+		this.router.post('/roles/:roleName/members', this.secureApiHandler, this.addRoleMembers.bind(this));
 		this.router.get('/roles/:roleName/members', this.getRoleMembers.bind(this));
 		this.router.get('/roles', this.getRoles.bind(this));
-		this.router.post('/roles', this.addRole.bind(this));
+		this.router.post('/roles', this.secureApiHandler, this.addRole.bind(this));
 		this.router.post('/users/register', this.registerUser.bind(this));
 		this.router.post('/login/token', this.tokenLogin.bind(this));
 		this.router.post('/login', this.login.bind(this));
@@ -60,9 +60,9 @@ export class ApiRouting {
 		this.router.get('/animals/questions/:questionId', this.getQuestion.bind(this));
 		this.router.get('/animals/questions', this.getAllQuestions.bind(this));
 		this.router.post('/animals', this.saveNewAnimal.bind(this));
-		this.router.delete('/animals/:animalId', this.deleteAnimal.bind(this));
-		this.router.get('/celldata/people', this.secureApiHandler, this.getPeople.bind(this));
-		this.router.post('/celldata/people', this.addPerson.bind(this));
+		this.router.delete('/animals/:animalId', this.secureApiHandler, this.deleteAnimal.bind(this));
+		this.router.get('/celldata/people', this.getPeople.bind(this));
+		this.router.post('/celldata/people', this.secureApiHandler, this.addPerson.bind(this));
 		this.router.get('/celldata/cycles', this.getCycles.bind(this));
 		this.router.post('/celldata/cycles', this.addCycle.bind(this));
 		this.router.get('/celldata/usage/:personId', this.getUsageForPerson.bind(this));
@@ -70,17 +70,17 @@ export class ApiRouting {
 		this.router.get('/celldata/periodusage', this.getPeriodUsage.bind(this));
 
 		this.router.get('/quiz/questions', this.getQuizQuestions.bind(this));
-		this.router.post('/quiz/questions', this.saveNewQuizQuestion.bind(this));
+		this.router.post('/quiz/questions', this.secureApiHandler, this.saveNewQuizQuestion.bind(this));
         this.router.get('/quiz/questions/:questionId', this.getQuizQuestion.bind(this));
-        this.router.put('/quiz/questions/:questionId', this.updateQuestion.bind(this));
+        this.router.put('/quiz/questions/:questionId', this.secureApiHandler, this.updateQuestion.bind(this));
 		this.router.get('/quiz/categories', this.getQuizCategories.bind(this));
 		this.router.get('/quiz/answercategories', this.getQuizAnswerCategories.bind(this));
         this.router.get('/quiz/test/user/:username', this.getUserTests.bind(this));
-		this.router.post('/quiz/test/:testId/score', this.scoreTest.bind(this));
-		this.router.post('/quiz/test/:testId/answer/:questionNumber', this.recordTestAnswer.bind(this));
+		this.router.post('/quiz/test/:testId/score', this.secureApiHandler, this.scoreTest.bind(this));
+		this.router.post('/quiz/test/:testId/answer/:questionNumber', this.secureApiHandler, this.recordTestAnswer.bind(this));
 		this.router.get('/quiz/test/:testId', this.getTest.bind(this));
-		this.router.post('/quiz/test', this.createTest.bind(this));
-		this.router.post('/quiz', this.createQuiz.bind(this));
+		this.router.post('/quiz/test', this.secureApiHandler, this.createTest.bind(this));
+		this.router.post('/quiz', this.secureApiHandler, this.createQuiz.bind(this));
 		this.router.get('/quiz/:quizId', this.getQuiz.bind(this));
 
 		var uploads = multer({ dest: this.uploadFolder});
@@ -88,6 +88,7 @@ export class ApiRouting {
 		//Special case to use the multer middleware piece to handle file uploads
 		this.app.post('/api/celldata/uploadUsage/:personId',
 			[uploads['single']('datafile'),
+            this.secureApiHandler,
 			this.uploadUsage.bind(this)]);
 	}
 
