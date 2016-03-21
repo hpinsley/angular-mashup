@@ -60,8 +60,6 @@ export class People {
               firstName: this.model.firstName,
               lastName: this.model.lastName})
 
-              .subscribe(res => {
-                    this.getPeople();
-                    }, (errResp) => alert(`Unable to add user.  Status is ${errResp.status}`));
+              .subscribe(res => this.getPeople());
     }
 }

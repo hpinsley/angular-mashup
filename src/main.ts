@@ -1,4 +1,4 @@
-import {provide, enableProdMode} from 'angular2/core';
+import {provide, enableProdMode, ExceptionHandler} from 'angular2/core';
 import {bootstrap} from 'angular2/platform/browser';
 import {ROUTER_PROVIDERS, APP_BASE_HREF, LocationStrategy, HashLocationStrategy} from 'angular2/router';
 import {AppCmp} from './app/components/app';
@@ -9,6 +9,7 @@ import {DataService} from './services/redux/DataService';
 import {CounterService} from './services/redux/Counter/CounterService';
 import {TodoService} from './services/redux/Todo/TodoService';
 import {Server} from './services/Server';
+import {GlobalExceptionHandler} from './GlobalExceptionHandler';
 
 if ('<%= ENV %>' === 'prod') { enableProdMode(); }
 
@@ -22,7 +23,8 @@ bootstrap(AppCmp, [
   MessageBroker,
   DataService,
   TodoService,
-  CounterService
+  CounterService,
+  provide(ExceptionHandler, {useClass: GlobalExceptionHandler})
 ]);
 
 // In order to start the Service Worker located at "./sw.js"
