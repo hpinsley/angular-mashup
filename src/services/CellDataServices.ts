@@ -12,7 +12,6 @@ export class CellDataServices {
 	}
 
 	getPeople() : Observable<IPerson[]> {
-		//var result = this.http.get('/api/celldata/people')
 		var result = this.server.get('/api/celldata/people')
 			.map(response => {
                 return <IPerson[]>response.json();
@@ -22,9 +21,7 @@ export class CellDataServices {
 	}
 
 	savePerson(person:IPerson) : Observable<IPerson> {
-		var result = this.http.post('/api/celldata/people',
-					JSON.stringify(person),
-					this.getPostOptions())
+        var result = this.server.post('/api/celldata/people', person)
 			.map(response => <IPerson> response.json());
 
 		return result;
