@@ -1,6 +1,5 @@
 import {Injectable} from 'angular2/core';
 import {Observable} from 'rxjs/Observable';
-import {Http, Headers, RequestOptions, RequestOptionsArgs} from 'angular2/http';
 import {IQuizQuestion, INewQuizRequest, IQuiz, IScoringResult,
         ITest, INewTestRequest, ISectionResult} from '../../common/interfaces/QuizInterfaces';
 import {SectionResult} from '../models/SectionResult';
@@ -9,12 +8,12 @@ import {Server} from './Server';
 @Injectable()
 export class QuizServices {
 
-	constructor(public http:Http, public server:Server) {
+	constructor(public server:Server) {
 
 	}
 
 	getQuestions() : Observable<IQuizQuestion[]> {
-		var result = this.http.get('/api/quiz/questions')
+		var result = this.server.get('/api/quiz/questions')
 			.map(response => {
                 return <IQuizQuestion[]> response.json();
             });
@@ -23,7 +22,7 @@ export class QuizServices {
 	}
 
 	getQuestion(questionId:number) : Observable<IQuizQuestion> {
-		var result = this.http.get(`/api/quiz/questions/${questionId}`)
+		var result = this.server.get(`/api/quiz/questions/${questionId}`)
 			.map(response => {
                 return <IQuizQuestion> response.json();
             });
@@ -32,7 +31,7 @@ export class QuizServices {
 	}
 
 	getQuestionsForCategory(category:string) : Observable<IQuizQuestion[]> {
-		var result = this.http.get(`/api/quiz/questions?category=${category}`)
+		var result = this.server.get(`/api/quiz/questions?category=${category}`)
 			.map(response => {
                 return response.json();
             });
@@ -41,7 +40,7 @@ export class QuizServices {
 	}
 
 	getQuestionsForQAndACategory(category:string, answerCategory:string) : Observable<IQuizQuestion[]> {
-		var result = this.http.get(`/api/quiz/questions?category=${category}&answerCategory=${answerCategory}`)
+		var result = this.server.get(`/api/quiz/questions?category=${category}&answerCategory=${answerCategory}`)
 			.map(response => {
                 return response.json();
             });
@@ -50,11 +49,11 @@ export class QuizServices {
 	}
 
 	getCategories() : Observable<string[]> {
-		return this.http.get('/api/quiz/categories').map(response => response.json());
+		return this.server.get('/api/quiz/categories').map(response => response.json());
 	}
 
 	getAnswerCategories() : Observable<string[]> {
-		return this.http.get('/api/quiz/answercategories').map(response => response.json());
+		return this.server.get('/api/quiz/answercategories').map(response => response.json());
 	}
 
 	addQuestion(newQuestion:IQuizQuestion) : Observable<IQuizQuestion> {
@@ -63,23 +62,20 @@ export class QuizServices {
 	}
 
 	updateQuestion(question:IQuizQuestion) : Observable<IQuizQuestion> {
-		var pub = this.http.put(`/api/quiz/questions/${question.questionId}`,
-					JSON.stringify(question),
-					this.getPostOptions());
-
+		var pub = this.server.put(`/api/quiz/questions/${question.questionId}`, question);
 		return pub.map(response => response.json());
 	}
 
 	getQuiz(quizId:number) : Observable<IQuiz> {
-		return this.http.get(`/api/quiz/${quizId}`).map(response => response.json());
+		return this.server.get(`/api/quiz/${quizId}`).map(response => response.json());
 	}
 
 	getTest(testId:number) : Observable<ITest> {
-		return this.http.get(`/api/quiz/test/${testId}`).map(response => response.json());
+		return this.server.get(`/api/quiz/test/${testId}`).map(response => response.json());
 	}
 
     getUserTests(username:string) : Observable<ITest[]> {
-        return this.http.get(`/api/quiz/test/user/${username}`)
+        return this.server.get(`/api/quiz/test/user/${username}`)
             .map(response => {
                 return this.convertTestDates(response.json());
             });
@@ -93,7 +89,7 @@ export class QuizServices {
 			categories: categories
 		};
 
-		var pub = this.http.post('/api/quiz', JSON.stringify(request), this.getPostOptions());
+		var pub = this.server.post('/api/quiz', request);
 		return pub.map(response => response.json());
 	}
 
@@ -105,31 +101,20 @@ export class QuizServices {
 			user: user
 		};
 
-		return this.http.post('/api/quiz/test', JSON.stringify(request), this.getPostOptions())
+		return this.server.post('/api/quiz/test', request)
 			.map(response => response.json());
 	}
 
 	recordAnswer(testId: number, questionNumber: number, userAnswer:string) : Observable<any> {
 		console.log(testId, questionNumber, userAnswer);
-		return this.http.post(`/api/quiz/test/${testId}/answer/${questionNumber}`,
-				JSON.stringify({userAnswer: userAnswer}), this.getPostOptions())
+		return this.server.post(`/api/quiz/test/${testId}/answer/${questionNumber}`,
+				{userAnswer: userAnswer})
 				.map(response => response.json());
 	}
 
 	scoreTest(testId:number) : Observable<IScoringResult> {
-		return this.http.post(`/api/quiz/test/${testId}/score`, null, this.getPostOptions())
+		return this.server.post(`/api/quiz/test/${testId}/score`, null)
 				.map(response => response.json());
-	}
-
-	getPostOptions(): RequestOptions {
-		var headers = new Headers();
-		headers.append('Content-Type', 'application/json');
-
-		var options: RequestOptionsArgs = {
-			headers: headers
-		};
-
-		return new RequestOptions(options);
 	}
 
 	convertTestDates(tests:any[]) : ITest[] {

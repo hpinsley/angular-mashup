@@ -48,50 +48,50 @@ export class ApiRouting {
 
 	configBasicRoutes() {
 
-		this.router.get('/users', this.addResponseHeaders, this.getUsers.bind(this));
+		this.router.get('/users', this.postAuthenticate.bind(this), this.getUsers.bind(this));
 		this.router.post('/roles/:roleName/members',
-            this.secureApiHandler, this.addResponseHeaders, this.addRoleMembers.bind(this));
-		this.router.get('/roles/:roleName/members', this.addResponseHeaders, this.getRoleMembers.bind(this));
-		this.router.get('/roles', this.addResponseHeaders, this.getRoles.bind(this));
+            this.secureApiHandler, this.postAuthenticate.bind(this), this.addRoleMembers.bind(this));
+		this.router.get('/roles/:roleName/members', this.postAuthenticate.bind(this), this.getRoleMembers.bind(this));
+		this.router.get('/roles', this.postAuthenticate.bind(this), this.getRoles.bind(this));
 		this.router.post('/roles', this.secureApiHandler,
-                this.addResponseHeaders, this.addRole.bind(this));
-		this.router.post('/users/register', this.addResponseHeaders, this.registerUser.bind(this));
-		this.router.post('/login/token', this.addResponseHeaders, this.tokenLogin.bind(this));
-		this.router.post('/login', this.addResponseHeaders, this.login.bind(this));
-		this.router.get('/animals/questions/root', this.addResponseHeaders, this.getRootQuestion.bind(this));
-		this.router.get('/animals/questions/:questionId', this.addResponseHeaders, this.getQuestion.bind(this));
-		this.router.get('/animals/questions', this.addResponseHeaders, this.getAllQuestions.bind(this));
-		this.router.post('/animals', this.addResponseHeaders, this.saveNewAnimal.bind(this));
+                this.postAuthenticate.bind(this), this.addRole.bind(this));
+		this.router.post('/users/register', this.postAuthenticate.bind(this), this.registerUser.bind(this));
+		this.router.post('/login/token', this.postAuthenticate.bind(this), this.tokenLogin.bind(this));
+		this.router.post('/login', this.postAuthenticate.bind(this), this.login.bind(this));
+		this.router.get('/animals/questions/root', this.postAuthenticate.bind(this), this.getRootQuestion.bind(this));
+		this.router.get('/animals/questions/:questionId', this.postAuthenticate.bind(this), this.getQuestion.bind(this));
+		this.router.get('/animals/questions', this.postAuthenticate.bind(this), this.getAllQuestions.bind(this));
+		this.router.post('/animals', this.postAuthenticate.bind(this), this.saveNewAnimal.bind(this));
 		this.router.delete('/animals/:animalId', this.secureApiHandler,
-            this.addResponseHeaders, this.deleteAnimal.bind(this));
-		this.router.get('/celldata/people', this.auditCall.bind(this), this.addResponseHeaders, this.getPeople.bind(this));
-		this.router.post('/celldata/people', this.secureApiHandler, this.auditCall.bind(this),
-            this.addResponseHeaders, this.addPerson.bind(this));
-		this.router.get('/celldata/cycles', this.addResponseHeaders, this.getCycles.bind(this));
-		this.router.post('/celldata/cycles', this.addResponseHeaders, this.addCycle.bind(this));
-		this.router.get('/celldata/usage/:personId', this.addResponseHeaders, this.getUsageForPerson.bind(this));
-		this.router.get('/celldata/usage', this.addResponseHeaders, this.getUsage.bind(this));
-		this.router.get('/celldata/periodusage', this.addResponseHeaders, this.getPeriodUsage.bind(this));
+            this.postAuthenticate.bind(this), this.deleteAnimal.bind(this));
+		this.router.get('/celldata/people', this.postAuthenticate.bind(this), this.getPeople.bind(this));
+		this.router.post('/celldata/people', this.secureApiHandler,
+            this.postAuthenticate.bind(this), this.addPerson.bind(this));
+		this.router.get('/celldata/cycles', this.postAuthenticate.bind(this), this.getCycles.bind(this));
+		this.router.post('/celldata/cycles', this.postAuthenticate.bind(this), this.addCycle.bind(this));
+		this.router.get('/celldata/usage/:personId', this.postAuthenticate.bind(this), this.getUsageForPerson.bind(this));
+		this.router.get('/celldata/usage', this.postAuthenticate.bind(this), this.getUsage.bind(this));
+		this.router.get('/celldata/periodusage', this.postAuthenticate.bind(this), this.getPeriodUsage.bind(this));
 
-		this.router.get('/quiz/questions', this.addResponseHeaders, this.getQuizQuestions.bind(this));
+		this.router.get('/quiz/questions', this.postAuthenticate.bind(this), this.getQuizQuestions.bind(this));
 		this.router.post('/quiz/questions', this.secureApiHandler,
-            this.addResponseHeaders, this.saveNewQuizQuestion.bind(this));
-        this.router.get('/quiz/questions/:questionId', this.addResponseHeaders, this.getQuizQuestion.bind(this));
+            this.postAuthenticate.bind(this), this.saveNewQuizQuestion.bind(this));
+        this.router.get('/quiz/questions/:questionId', this.postAuthenticate.bind(this), this.getQuizQuestion.bind(this));
         this.router.put('/quiz/questions/:questionId', this.secureApiHandler,
-            this.addResponseHeaders, this.updateQuestion.bind(this));
-		this.router.get('/quiz/categories', this.addResponseHeaders, this.getQuizCategories.bind(this));
-		this.router.get('/quiz/answercategories', this.addResponseHeaders, this.getQuizAnswerCategories.bind(this));
-        this.router.get('/quiz/test/user/:username', this.addResponseHeaders, this.getUserTests.bind(this));
+            this.postAuthenticate.bind(this), this.updateQuestion.bind(this));
+		this.router.get('/quiz/categories', this.postAuthenticate.bind(this), this.getQuizCategories.bind(this));
+		this.router.get('/quiz/answercategories', this.postAuthenticate.bind(this), this.getQuizAnswerCategories.bind(this));
+        this.router.get('/quiz/test/user/:username', this.postAuthenticate.bind(this), this.getUserTests.bind(this));
 		this.router.post('/quiz/test/:testId/score', this.secureApiHandler,
-            this.addResponseHeaders, this.scoreTest.bind(this));
+            this.postAuthenticate.bind(this), this.scoreTest.bind(this));
 		this.router.post('/quiz/test/:testId/answer/:questionNumber',
-            this.secureApiHandler, this.addResponseHeaders, this.recordTestAnswer.bind(this));
-		this.router.get('/quiz/test/:testId', this.addResponseHeaders, this.getTest.bind(this));
+            this.secureApiHandler, this.postAuthenticate.bind(this), this.recordTestAnswer.bind(this));
+		this.router.get('/quiz/test/:testId', this.postAuthenticate.bind(this), this.getTest.bind(this));
 		this.router.post('/quiz/test', this.secureApiHandler,
-            this.addResponseHeaders, this.createTest.bind(this));
+            this.postAuthenticate.bind(this), this.createTest.bind(this));
 		this.router.post('/quiz', this.secureApiHandler,
-            this.addResponseHeaders, this.createQuiz.bind(this));
-		this.router.get('/quiz/:quizId', this.addResponseHeaders, this.getQuiz.bind(this));
+            this.postAuthenticate.bind(this), this.createQuiz.bind(this));
+		this.router.get('/quiz/:quizId', this.postAuthenticate.bind(this), this.getQuiz.bind(this));
 
 		var uploads = multer({ dest: this.uploadFolder});
 
@@ -102,12 +102,10 @@ export class ApiRouting {
 			this.uploadUsage.bind(this)]);
 	}
 
-    addResponseHeaders(req:express.Request, res:express.Response, next:express.NextFunction) {
-        res.set('Access-Control-Allow-Origin', '*');
-        next();
-    }
+    postAuthenticate(req:express.Request, res:express.Response, next:express.NextFunction) {
 
-    auditCall(req:express.Request, res:express.Response, next:express.NextFunction) {
+        res.set('Access-Control-Allow-Origin', '*');
+
         let user:IUser = req.user;
         let username:string = user ? user.username : 'unauthenticated';
         let url = req.url;

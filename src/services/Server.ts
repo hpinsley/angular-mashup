@@ -28,7 +28,7 @@ export class Server {
     }
 
     post(url:string, data:any) : Observable<Response> {
-        let dataStr = JSON.stringify(data);
+        let dataStr = data === null ? null : JSON.stringify(data);
 
         var headers = new Headers();
 		headers.append('Content-Type', 'application/json');
@@ -44,6 +44,26 @@ export class Server {
         console.info(`Posting to ${url}.  Data: ${dataStr}.`);
 
 		let result = this.http.post(url, dataStr, options);
+        return result;
+    }
+
+    put(url:string, data:any) : Observable<Response> {
+        let dataStr = data === null ? null : JSON.stringify(data);
+
+        var headers = new Headers();
+		headers.append('Content-Type', 'application/json');
+
+        if (this.authenticationService.bearerToken) {
+            headers.append('Authorization', 'Bearer ' + this.authenticationService.bearerToken);
+        }
+
+		var options: RequestOptionsArgs = {
+			headers: headers
+		};
+
+        console.info(`Putting to ${url}.  Data: ${dataStr}.`);
+
+		let result = this.http.put(url, dataStr, options);
         return result;
     }
 }
