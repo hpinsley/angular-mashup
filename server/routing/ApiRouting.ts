@@ -49,11 +49,11 @@ export class ApiRouting {
 	configBasicRoutes() {
 
 		this.router.get('/users', this.addResponseHeaders, this.getUsers.bind(this));
-		this.router.post('/roles/:roleName/members', this.addResponseHeaders,
+		this.router.post('/roles/:roleName/members',
             this.secureApiHandler, this.addResponseHeaders, this.addRoleMembers.bind(this));
 		this.router.get('/roles/:roleName/members', this.addResponseHeaders, this.getRoleMembers.bind(this));
 		this.router.get('/roles', this.addResponseHeaders, this.getRoles.bind(this));
-		this.router.post('/roles', this.addResponseHeaders, this.secureApiHandler,
+		this.router.post('/roles', this.secureApiHandler,
                 this.addResponseHeaders, this.addRole.bind(this));
 		this.router.post('/users/register', this.addResponseHeaders, this.registerUser.bind(this));
 		this.router.post('/login/token', this.addResponseHeaders, this.tokenLogin.bind(this));
@@ -62,10 +62,10 @@ export class ApiRouting {
 		this.router.get('/animals/questions/:questionId', this.addResponseHeaders, this.getQuestion.bind(this));
 		this.router.get('/animals/questions', this.addResponseHeaders, this.getAllQuestions.bind(this));
 		this.router.post('/animals', this.addResponseHeaders, this.saveNewAnimal.bind(this));
-		this.router.delete('/animals/:animalId', this.addResponseHeaders, this.secureApiHandler,
+		this.router.delete('/animals/:animalId', this.secureApiHandler,
             this.addResponseHeaders, this.deleteAnimal.bind(this));
-		this.router.get('/celldata/people', this.addResponseHeaders, this.getPeople.bind(this));
-		this.router.post('/celldata/people', this.addResponseHeaders, this.secureApiHandler,
+		this.router.get('/celldata/people', this.auditCall.bind(this), this.addResponseHeaders, this.getPeople.bind(this));
+		this.router.post('/celldata/people', this.secureApiHandler, this.auditCall.bind(this),
             this.addResponseHeaders, this.addPerson.bind(this));
 		this.router.get('/celldata/cycles', this.addResponseHeaders, this.getCycles.bind(this));
 		this.router.post('/celldata/cycles', this.addResponseHeaders, this.addCycle.bind(this));
@@ -74,22 +74,22 @@ export class ApiRouting {
 		this.router.get('/celldata/periodusage', this.addResponseHeaders, this.getPeriodUsage.bind(this));
 
 		this.router.get('/quiz/questions', this.addResponseHeaders, this.getQuizQuestions.bind(this));
-		this.router.post('/quiz/questions', this.addResponseHeaders, this.secureApiHandler,
+		this.router.post('/quiz/questions', this.secureApiHandler,
             this.addResponseHeaders, this.saveNewQuizQuestion.bind(this));
         this.router.get('/quiz/questions/:questionId', this.addResponseHeaders, this.getQuizQuestion.bind(this));
-        this.router.put('/quiz/questions/:questionId', this.addResponseHeaders, this.secureApiHandler,
+        this.router.put('/quiz/questions/:questionId', this.secureApiHandler,
             this.addResponseHeaders, this.updateQuestion.bind(this));
 		this.router.get('/quiz/categories', this.addResponseHeaders, this.getQuizCategories.bind(this));
 		this.router.get('/quiz/answercategories', this.addResponseHeaders, this.getQuizAnswerCategories.bind(this));
         this.router.get('/quiz/test/user/:username', this.addResponseHeaders, this.getUserTests.bind(this));
-		this.router.post('/quiz/test/:testId/score', this.addResponseHeaders, this.secureApiHandler,
+		this.router.post('/quiz/test/:testId/score', this.secureApiHandler,
             this.addResponseHeaders, this.scoreTest.bind(this));
-		this.router.post('/quiz/test/:testId/answer/:questionNumber', this.addResponseHeaders,
+		this.router.post('/quiz/test/:testId/answer/:questionNumber',
             this.secureApiHandler, this.addResponseHeaders, this.recordTestAnswer.bind(this));
 		this.router.get('/quiz/test/:testId', this.addResponseHeaders, this.getTest.bind(this));
-		this.router.post('/quiz/test', this.addResponseHeaders, this.secureApiHandler,
+		this.router.post('/quiz/test', this.secureApiHandler,
             this.addResponseHeaders, this.createTest.bind(this));
-		this.router.post('/quiz', this.addResponseHeaders, this.secureApiHandler,
+		this.router.post('/quiz', this.secureApiHandler,
             this.addResponseHeaders, this.createQuiz.bind(this));
 		this.router.get('/quiz/:quizId', this.addResponseHeaders, this.getQuiz.bind(this));
 
@@ -106,6 +106,19 @@ export class ApiRouting {
         res.set('Access-Control-Allow-Origin', '*');
         next();
     }
+
+    auditCall(req:express.Request, res:express.Response, next:express.NextFunction) {
+        let user:IUser = req.user;
+        let username:string = user ? user.username : 'unauthenticated';
+        let url = req.url;
+        let verb = req.method;
+
+        this.securityService.saveAuditRecord(username, 'request', { verb: verb, url: url})
+            .then(rec => {
+                next();
+            });
+    }
+
     getUsers(req, res, next) {
 		this.securityService.getUsers()
 			.then(users => res.send(users))
@@ -244,6 +257,9 @@ export class ApiRouting {
 
 	addPerson(req, res, next) {
 		var person:IPerson = req.body;
+        var user:IUser = req.user;
+        console.log('Adding person by user: ', user.username);
+
 		this.cellDataPersistenceService.addPerson(person)
 			.then(p => res.send(p))
 			.catch(err => next(err));

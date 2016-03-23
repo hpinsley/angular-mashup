@@ -2,6 +2,7 @@ import Q = require('q');
 var mongoskin = require('mongoskin');
 import {IPerson, ICycle, IUsage} from '../../common/interfaces/CellDataInterfaces';
 import fs = require('fs');
+import {audit} from '../decorators/audit';
 
 var config = {
 	mongo_url: process.env.CELLDATA_URL || 'mongodb://@localhost:27017/celldata'
@@ -21,6 +22,7 @@ export class CellDataPersistenceService {
 		this.usageCollection = this.db.collection('usage');
 	}
 
+    @audit('getPeople')
 	public getPeople():Q.Promise<IPerson[]> {
 		let defer = Q.defer<IPerson[]>();
 		this.peopleCollection.find({}).sort({lastName:1, firstName: 1}).toArray(function(e, people:IPerson[]){
@@ -33,6 +35,7 @@ export class CellDataPersistenceService {
 		return defer.promise;
 	}
 
+    @audit('Adding Person')
 	public addPerson(person:IPerson):Q.Promise<IPerson> {
 		let defer = Q.defer<IPerson>();
 		var coll = this.peopleCollection;

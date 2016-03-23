@@ -27,7 +27,12 @@ export interface IChatMessageAudit {
     clientsOnline: number;
 }
 
-export type AuditDetails = ILoginAudit | IRegistrationAudit | IChatMessageAudit;
+export interface IRequestAudit {
+    verb: string;
+    url: string;
+}
+
+export type AuditDetails = ILoginAudit | IRegistrationAudit | IChatMessageAudit | IRequestAudit;
 
 export interface IAuditRecord {
     username: string;
